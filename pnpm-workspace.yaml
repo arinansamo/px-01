@@ -1,0 +1,3 @@
+allowBuilds:
+  # 実体のバイナリを置く後処理。これを許さないと esbuild が動かない。
+  esbuild: true

@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "px-01",
+  "version": "0.1.0",
+  "description": "ページに帯を重ねて、余白と寸法と色を測る。",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_title": "px-01 を切り替える"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "commands": {
+    "toggle": {
+      "suggested_key": {
+        "default": "Alt+Shift+P"
+      },
+      "description": "px-01 を切り替える"
+    }
+  },
+  "host_permissions": [
+    "http://127.0.0.1:3401/*"
+  ]
+}
