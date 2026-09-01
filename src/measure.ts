@@ -21,10 +21,11 @@ declare global {
 }
 
 const HOST_ID = "px-01-host";
-const PAD = "#3b82f6";
-const GAP = "#22c55e";
-const MARGIN = "#f59e0b";
-const EDGE = "#ef4444";
+// 暗い画面に映えるネオン。色相を四方に散らし、隣り合っても取り違えないようにする。
+const PAD = "#00e5ff";
+const GAP = "#9dff00";
+const MARGIN = "#ffb300";
+const EDGE = "#c86bff";
 
 /**
  * 数値を px と rem の併記にする。
@@ -224,7 +225,7 @@ const start = (): void => {
     .band { position: fixed; box-sizing: border-box; }
     .band > span {
       position: absolute; left: 0; top: 0;
-      font: 700 11px ui-monospace, Consolas, monospace; color: #fff;
+      font: 700 11px ui-monospace, Consolas, monospace; color: #0b0d10;
       padding: 1px 5px; border-radius: 4px; white-space: nowrap;
     }
     /* 幅も行数も固定にする。中身で寸法が変わると、指について回るぶん暴れて見える。 */
@@ -240,8 +241,9 @@ const start = (): void => {
     #panel .k { color: #8b95a5; flex: none; }
     #panel .row { display: flex; gap: 10px; justify-content: space-between; }
     #panel .row b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* 見出しは外形の色に揃える——いま囲っているものの名を、囲みと同じ色で名乗らせる。 */
     #panel .head {
-      color: #22c55e; margin-bottom: 4px;
+      color: ${EDGE}; margin-bottom: 4px; text-shadow: 0 0 8px ${EDGE}80;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     #panel .hint { color: #6b7482; margin-top: 6px; font-size: 11px; }
@@ -350,12 +352,14 @@ const start = (): void => {
       const el = document.createElement("div");
       el.className = "band";
       const fill = b.color === EDGE ? "transparent" : `${b.color}38`;
-      el.style.cssText = `left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px;background:${fill};outline:1px solid ${b.color};`;
+      // 外へ滲ませる。ネオンらしさは色の鮮やかさではなく、この滲みが作る。
+      el.style.cssText = `left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px;background:${fill};outline:1px solid ${b.color};box-shadow:0 0 7px ${b.color}80;`;
       // 札より先に帯を入れる。DOM の外では offsetWidth が 0 になり、寸法が測れない。
       bandsRoot.appendChild(el);
       if (!b.label) continue;
       const tag = document.createElement("span");
       tag.style.background = b.color;
+      tag.style.boxShadow = `0 0 8px ${b.color}b0`;
       tag.textContent = b.label;
       el.appendChild(tag);
       tag.style.transformOrigin = "top left";
