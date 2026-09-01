@@ -248,6 +248,9 @@ const start = (): void => {
   let frame = 0;
   // ↑で登った道。↓のとき、来た道をそのまま降りるために覚えておく。
   let descent: Element[] = [];
+  // 立ち上げた時点の画素比。以後これとの比を拡大の度合いとみなし、道具だけ逆に縮める
+  // ——拡大は CSS の 1px ごと引き伸ばすので、そのままではパネルが画面を食い潰す。
+  const baseRatio = window.devicePixelRatio || 1;
 
   /** 帯を敷き直す。 */
   const draw = (): void => {
@@ -316,13 +319,21 @@ const start = (): void => {
     // パネルは指の右下へ。画面から出るときだけ内側へ寄せる。
     // 幅は clientWidth で見る——innerWidth はスクロールバーを含み、そのぶん右へはみ出す。
     const view = { w: document.documentElement.clientWidth, h: document.documentElement.clientHeight };
-    const panelLeft = Math.max(8, Math.min(pointer.x + 16, view.w - panel.offsetWidth - 8));
-    const panelTop = Math.max(8, Math.min(pointer.y + 16, view.h - panel.offsetHeight - 8));
+    // 拡大されている間は、その逆数で縮める。見た目の大きさは拡大前と変わらない。
+    const zoom = Math.max(1, (window.devicePixelRatio || 1) / baseRatio);
+    const shrink = zoom > 1.02 ? `scale(${(1 / zoom).toFixed(4)})` : "";
+    panel.style.transformOrigin = "top left";
+    panel.style.transform = shrink;
+    // 縮めた後の見た目の寸法で置き場所を決める（offsetWidth は縮める前の値を返す）。
+    const panelW = panel.offsetWidth / zoom;
+    const panelH = panel.offsetHeight / zoom;
+    const panelLeft = Math.max(8, Math.min(pointer.x + 16, view.w - panelW - 8));
+    const panelTop = Math.max(8, Math.min(pointer.y + 16, view.h - panelH - 8));
     panel.style.left = `${panelLeft}px`;
     panel.style.top = `${panelTop}px`;
 
     // 先に埋まっている場所。パネルを最初に置き、札はそれと既に置いた札を避ける。
-    const taken = [{ x: panelLeft, y: panelTop, w: panel.offsetWidth, h: panel.offsetHeight }];
+    const taken = [{ x: panelLeft, y: panelTop, w: panelW, h: panelH }];
     const free = (x: number, y: number, w: number, h: number): boolean =>
       !taken.some((t) => x < t.x + t.w && x + w > t.x && y < t.y + t.h && y + h > t.y);
 
@@ -339,8 +350,10 @@ const start = (): void => {
       tag.style.background = b.color;
       tag.textContent = b.label;
       el.appendChild(tag);
-      const width = tag.offsetWidth;
-      const height = tag.offsetHeight;
+      tag.style.transformOrigin = "top left";
+      tag.style.transform = shrink;
+      const width = tag.offsetWidth / zoom;
+      const height = tag.offsetHeight / zoom;
       // 太い帯は左端へ寄せ、細い帯は札のほうが大きいので中央に跨がせる（持ち主を示すため）。
       const wantX = b.w >= LABEL_ROOM ? b.x + 4 : b.x + b.w / 2 - width / 2;
       const wantY = b.y + b.h / 2 - height / 2;
