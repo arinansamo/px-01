@@ -19,8 +19,9 @@
 | `C` | 画面の1点から色を吸ってクリップボードへ（`EyeDropper`） |
 | `Esc` | 終了。ホストごと消えて、ページは元通り |
 
-指で触る画面（スマホ・DevTools のデバイス表示）では hover が存在しないので、
-**押しながら滑らせる**と辿れる。従来どおり hover で使いたいときは Device type を `Mobile (no touch)` にする。
+DevTools のデバイス表示（タッチの真似）では、**押していない間はカーソルの動きが一切届かない**
+（pointermove も mousemove も鳴らない。実測）。辿るには **押しながら滑らせる**か、
+Device type を `Mobile (no touch)` にしてカーソルの動きを戻す。
 
 ## 帯の色
 

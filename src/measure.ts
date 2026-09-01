@@ -91,6 +91,13 @@ const LABEL_ROOM = 160;
 /** 中の隙間を敷く上限。桝の多い grid で画面が帯だらけになるのを防ぐ。 */
 const INNER_MAX = 24;
 
+/**
+ * 指やカーソルの居場所を知らせてくる催し。どれが届くかは環境で変わる
+ * ——デバイス表示（タッチの真似）では pointer 系が抑えられることがあるので、mouse も併せて聞く。
+ * 同じ動きで二度呼ばれても、描き直しは1フレームに1回に畳まれるので害はない。
+ */
+const MOVE_EVENTS = ["pointermove", "pointerdown", "mousemove"] as const;
+
 /** 測るための1枠。矩形と計算後スタイルを対にして持つ。 */
 type Slot = { rect: DOMRect; style: CSSStyleDeclaration };
 
@@ -222,7 +229,8 @@ const start = (): void => {
     }
     /* 幅も行数も固定にする。中身で寸法が変わると、指について回るぶん暴れて見える。 */
     #panel {
-      position: fixed; width: min(360px, calc(100vw - 24px)); box-sizing: border-box;
+      /* 広い画面では 360px で据え置き。狭い窓では幅いっぱいを占めてしまうので、その割合で抑える。 */
+      position: fixed; width: min(360px, 76vw, calc(100vw - 24px)); box-sizing: border-box;
       background: #14161ae6; color: #e9ecf1;
       border: 1px solid #3a414d; border-radius: 8px; padding: 8px 10px;
       font: 12px/1.55 ui-monospace, Consolas, monospace; backdrop-filter: blur(6px); display: none;
@@ -388,7 +396,7 @@ const start = (): void => {
 
   // pointer で拾うのは、スマホ表示（タッチの真似）では hover が存在せず mousemove が一度も鳴らないため。
   // 指で押しながら滑らせると pointermove は鳴るので、そちらでも辿れる。
-  const onMove = (e: PointerEvent): void => {
+  const onMove = (e: MouseEvent): void => {
     pointer = { x: e.clientX, y: e.clientY };
     if (frozen) return schedule();
     const found = document.elementFromPoint(e.clientX, e.clientY);
@@ -447,8 +455,7 @@ const start = (): void => {
   const onScroll = (): void => schedule();
 
   const stop = (): void => {
-    removeEventListener("pointermove", onMove, true);
-    removeEventListener("pointerdown", onMove, true);
+    for (const kind of MOVE_EVENTS) removeEventListener(kind, onMove, true);
     removeEventListener("click", onClick, true);
     removeEventListener("keydown", onKey, true);
     removeEventListener("scroll", onScroll, true);
@@ -458,8 +465,7 @@ const start = (): void => {
     window.__px01 = undefined;
   };
 
-  addEventListener("pointermove", onMove, true);
-  addEventListener("pointerdown", onMove, true);
+  for (const kind of MOVE_EVENTS) addEventListener(kind, onMove, true);
   addEventListener("click", onClick, true);
   addEventListener("keydown", onKey, true);
   addEventListener("scroll", onScroll, true);
