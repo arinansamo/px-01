@@ -10,7 +10,7 @@
  * 変わったら自分で拡張を入れ替える——chrome://extensions の再読み込みを押さずに済ませるため。
  */
 import { createServer } from "node:http";
-import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync } from "node:fs";
 import * as esbuild from "esbuild";
 
 const watch = process.argv.includes("--watch");
@@ -43,7 +43,6 @@ if (watch) {
   const rebuild = async () => {
     build = new Date().toISOString();
     for (const t of TARGETS) await esbuild.build(options(t.entry, t.outfile, t.format));
-    writeFileSync("dist/build.txt", build);
     copyFileSync("manifest.json", "dist/manifest.json");
     console.log(`焼き直しました ${build}`);
   };
