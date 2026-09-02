@@ -1,0 +1,149 @@
+<!doctype html>
+<!-- px-01 の紹介画像を撮るための標本。測られることだけを目的に、余白と間隔を意図して置いてある。 -->
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>px-01 — 撮影用の標本</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #e9ecf1;
+        --dim: #8b95a5;
+        --line: #2b303a;
+        --card: #1b1e24;
+        --accent: #c86bff;
+        /* 撮影で名指ししたい値。分かりやすい丸い数にしてある。 */
+        --inset: 40px;
+        --stack-gap: 32px;
+        --tile-gap: 24px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #0e1014;
+        color: var(--ink);
+        font: 15px/1.7 system-ui, "Yu Gothic UI", sans-serif;
+      }
+      /* 縦に積む。この gap（32px）が「箱の中の距離」の見本になる。 */
+      .page {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 64px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: var(--stack-gap);
+      }
+      h1 {
+        margin: 0;
+        font-size: 30px;
+        letter-spacing: 0.04em;
+      }
+      h1 small {
+        display: block;
+        margin-top: 8px;
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--dim);
+        letter-spacing: 0;
+      }
+      /* padding（40px）を測らせる箱。四辺とも同じ値。 */
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: var(--inset);
+      }
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 18px;
+        color: var(--accent);
+      }
+      .card p {
+        margin: 0;
+        color: var(--dim);
+      }
+      /* 横に並べる。この gap（24px）が「並びの距離」の見本。 */
+      .tiles {
+        display: flex;
+        gap: var(--tile-gap);
+      }
+      .tile {
+        flex: 1;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+      }
+      .tile b {
+        display: block;
+        font-size: 24px;
+        margin-bottom: 4px;
+      }
+      .tile span {
+        color: var(--dim);
+        font-size: 13px;
+      }
+      /* margin で空ける見本。gap ではなくこちらで空けていることを測らせる。 */
+      .note {
+        margin: 48px 0 0;
+        padding: 18px 22px;
+        border-left: 3px solid var(--accent);
+        background: #16191f;
+        color: var(--dim);
+      }
+      .swatches {
+        display: flex;
+        gap: 12px;
+      }
+      .swatch {
+        width: 72px;
+        height: 72px;
+        border-radius: 10px;
+      }
+      footer {
+        color: #5c6672;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>
+        px-01
+        <small>ページに帯を重ねて、余白と寸法と色を測る</small>
+      </h1>
+
+      <section class="card">
+        <h2>箱の中を測る</h2>
+        <p>
+          この箱は四辺とも 40px の padding を持つ。触れれば四方が青い帯で囲まれ、
+          値は px と rem の両方で出る。
+        </p>
+      </section>
+
+      <div class="tiles">
+        <div class="tile"><b>24</b><span>並びの距離</span></div>
+        <div class="tile"><b>32</b><span>積みの距離</span></div>
+        <div class="tile"><b>40</b><span>縁からの距離</span></div>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background: #00e5ff"></div>
+        <div class="swatch" style="background: #9dff00"></div>
+        <div class="swatch" style="background: #ffb300"></div>
+        <div class="swatch" style="background: #c86bff"></div>
+      </div>
+
+      <p class="note">
+        この段は gap ではなく margin で 48px 空けている。px-01 は gap の値を読むのではなく
+        矩形の間を実測するので、どちらで空けても同じ距離として出る。
+      </p>
+
+      <footer>撮影用の標本。手元の道具の見本として作ったもの。</footer>
+    </div>
+  </body>
+</html>
