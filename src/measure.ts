@@ -99,6 +99,18 @@ const INNER_MAX = 24;
  */
 const MOVE_EVENTS = ["pointermove", "pointerdown", "mousemove"] as const;
 
+/** 立ち上げている間、こちらが受け持つ打鍵。ページにも入力欄にも渡さない。 */
+const OWNED_KEYS = new Set(["escape", "arrowup", "arrowdown", "c"]);
+
+/**
+ * この打鍵を受け取るか。
+ * 修飾つき（Ctrl+C の複写など）と変換の最中は見送る——道具の都合でブラウザの手癖と日本語入力まで奪わない。
+ * @param e 打鍵
+ * @returns 受け取るなら true
+ */
+const owns = (e: KeyboardEvent): boolean =>
+  !e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing && OWNED_KEYS.has(e.key.toLowerCase());
+
 /** 測るための1枠。矩形と計算後スタイルを対にして持つ。 */
 type Slot = { rect: DOMRect; style: CSSStyleDeclaration };
 
@@ -420,16 +432,22 @@ const start = (): void => {
   };
 
   const onKey = (e: KeyboardEvent): void => {
-    if (e.key === "Escape") return stop();
-    if (e.key === "ArrowUp" && target?.parentElement) {
-      e.preventDefault();
+    if (!owns(e)) return;
+    // 動く前に握り潰す。入力欄に焦点があっても文字は入らず、ページ側の仕掛けも鳴らない。
+    // 打ち上げまで潰すのは、keyup で動く手癖に素通りさせないため。
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (e.type !== "keydown") return;
+    const key = e.key.toLowerCase();
+    if (key === "escape") return stop();
+    if (key === "c") return void pick();
+    if (key === "arrowup" && target?.parentElement) {
       descent.push(target);
       target = target.parentElement;
       frozen = true;
       schedule();
     }
-    if (e.key === "ArrowDown" && target) {
-      e.preventDefault();
+    if (key === "arrowdown" && target) {
       const back = descent.pop();
       // 来た道が残っていればそこへ戻し、無ければ最初の子へ降りる。
       const next =
@@ -440,7 +458,6 @@ const start = (): void => {
         schedule();
       }
     }
-    if (e.key.toLowerCase() === "c") void pick();
   };
 
   /** 画面の1点から色を吸う。ページには触れない公式の口。 */
@@ -462,6 +479,7 @@ const start = (): void => {
     for (const kind of MOVE_EVENTS) removeEventListener(kind, onMove, true);
     removeEventListener("click", onClick, true);
     removeEventListener("keydown", onKey, true);
+    removeEventListener("keyup", onKey, true);
     removeEventListener("scroll", onScroll, true);
     removeEventListener("resize", onScroll);
     if (frame !== 0) cancelAnimationFrame(frame);
@@ -472,6 +490,7 @@ const start = (): void => {
   for (const kind of MOVE_EVENTS) addEventListener(kind, onMove, true);
   addEventListener("click", onClick, true);
   addEventListener("keydown", onKey, true);
+  addEventListener("keyup", onKey, true);
   addEventListener("scroll", onScroll, true);
   addEventListener("resize", onScroll);
 
