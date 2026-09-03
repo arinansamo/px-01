@@ -336,7 +336,7 @@ const start = (): void => {
       row("文字", `${cs.fontSize} / 行 ${cs.lineHeight}`) +
       row("色", text ?? "—") +
       row("背景", back ?? "—") +
-      `<div class="hint">${frozen ? "固定中（クリックで解除）" : "クリックで固定"} ・ ↑親へ ↓子へ ・ C で色を吸う ・ Esc で終了</div>`;
+      `<div class="hint">${frozen ? "固定中（クリックで解除）" : "クリックで固定"} ・ ↑親へ ↓子へ ・ C で色を吸う（Shift で # 無し）・ Esc で終了</div>`;
 
     // パネルは指の右下へ。画面から出るときだけ内側へ寄せる。
     // 幅は clientWidth で見る——innerWidth はスクロールバーを含み、そのぶん右へはみ出す。
@@ -440,7 +440,7 @@ const start = (): void => {
     if (e.type !== "keydown") return;
     const key = e.key.toLowerCase();
     if (key === "escape") return stop();
-    if (key === "c") return void pick();
+    if (key === "c") return void pick(e.shiftKey);
     if (key === "arrowup" && target?.parentElement) {
       descent.push(target);
       target = target.parentElement;
@@ -460,14 +460,17 @@ const start = (): void => {
     }
   };
 
-  /** 画面の1点から色を吸う。ページには触れない公式の口。 */
-  const pick = async (): Promise<void> => {
+  /**
+   * 画面の1点から色を吸う。ページには触れない公式の口。
+   * @param bare 先頭の `#` を落とすか（`#` を自前で持つ入力欄へ渡すとき用）
+   */
+  const pick = async (bare: boolean): Promise<void> => {
     const Dropper = (window as unknown as { EyeDropper?: new () => { open: () => Promise<{ sRGBHex: string }> } })
       .EyeDropper;
     if (!Dropper) return;
     try {
       const { sRGBHex } = await new Dropper().open();
-      await navigator.clipboard.writeText(sRGBHex);
+      await navigator.clipboard.writeText(bare ? sRGBHex.replace(/^#/, "") : sRGBHex);
     } catch {
       // 取り消しは何もしない。
     }
